@@ -1,0 +1,1778 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CV Builder</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Cairo", Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+button,
+input,
+textarea {
+    font-family: inherit;
+}
+
+
+/* =========================================
+   شاشة الترحيب
+========================================= */
+
+#welcomeScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+}
+
+.welcome-container {
+    width: 90%;
+    max-width: 500px;
+    background: white;
+    text-align: center;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+
+.welcome-photo {
+    width: 190px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 6px solid #1e3a8a;
+    margin-bottom: 20px;
+}
+
+.welcome-container h1 {
+    margin: 10px 0;
+    color: #0f172a;
+}
+
+.welcome-container p {
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.enter-button {
+    border: none;
+    background: #1e3a8a;
+    color: white;
+    padding: 14px 35px;
+    border-radius: 12px;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.enter-button:hover {
+    background: #172554;
+}
+
+
+/* =========================================
+   التطبيق
+========================================= */
+
+#mainApp {
+    display: none;
+}
+
+.top-header {
+    background: #0f172a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+
+/* =========================================
+   النموذج
+========================================= */
+
+.form-box {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
+
+.form-box h2 {
+    margin-top: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 7px;
+    font-weight: 700;
+}
+
+.form-group input,
+.form-group textarea {
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    outline: none;
+}
+
+.form-group textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+}
+
+.hint {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+
+/* =========================================
+   القوالب
+========================================= */
+
+.templates {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.template-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 15px;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    transition: .2s;
+}
+
+.template-card:hover {
+    transform: translateY(-3px);
+    border-color: #2563eb;
+}
+
+.template-card.selected {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.template-preview {
+    height: 130px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #e2e8f0;
+}
+
+.template-preview .line {
+    height: 7px;
+    background: #94a3b8;
+    margin: 7px 0;
+    border-radius: 4px;
+}
+
+.template-preview .title-line {
+    width: 60%;
+    height: 12px;
+    background: #1e3a8a;
+}
+
+
+/* =========================================
+   زر الإنشاء
+========================================= */
+
+.create-button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.create-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================
+   المعاينة
+========================================= */
+
+#previewSection {
+    display: none;
+    margin-top: 30px;
+}
+
+.preview-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cv-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding: 20px;
+}
+
+
+/* =========================================
+   السيرة الذاتية
+========================================= */
+
+#cv {
+    width: 794px;
+    height: 1123px;
+    min-height: 1123px;
+    margin: 0 auto;
+    padding: 55px;
+    background: white;
+    direction: rtl;
+    color: #1e293b;
+    box-shadow: 0 10px 35px rgba(0,0,0,.15);
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.cv-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+#cvPhoto {
+    display: none;
+    width: 125px;
+    height: 125px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cv-name {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.cv-job {
+    font-size: 18px;
+    color: #2563eb;
+    margin-top: 5px;
+}
+
+.contact-info {
+    margin-top: 12px;
+    color: #64748b;
+    line-height: 1.9;
+    font-size: 14px;
+}
+
+.cv-section {
+    margin-top: 28px;
+}
+
+.cv-section h3 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid #2563eb;
+}
+
+.cv-section p {
+    line-height: 2;
+    margin: 0;
+    white-space: pre-line;
+}
+
+
+/* =========================================
+   المهارات
+========================================= */
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-item {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   القالب الأول
+========================================= */
+
+#cv.template-1 {
+    border-top: 8px solid #1e3a8a;
+}
+
+#cv.template-1 .cv-section h3 {
+    color: #1e3a8a;
+}
+
+
+/* =========================================
+   القالب الثاني
+========================================= */
+
+#cv.template-2 {
+    border-right: 12px solid #059669;
+}
+
+#cv.template-2 .cv-header {
+    background: #ecfdf5;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+#cv.template-2 .cv-job {
+    color: #059669;
+}
+
+#cv.template-2 .cv-section h3 {
+    color: #059669;
+    border-bottom-color: #059669;
+}
+
+#cv.template-2 .skill-item {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+
+/* =========================================
+   القالب الثالث
+========================================= */
+
+#cv.template-3 {
+    background: #f8fafc;
+    border-left: 12px solid #7c3aed;
+}
+
+#cv.template-3 .cv-header {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+#cv.template-3 .cv-job {
+    color: #7c3aed;
+}
+
+#cv.template-3 .cv-section {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+#cv.template-3 .cv-section h3 {
+    color: #7c3aed;
+    border-bottom-color: #7c3aed;
+}
+
+#cv.template-3 .skill-item {
+    background: #f3e8ff;
+    color: #6d28d9;
+}
+
+
+/* =========================================
+   زر PDF
+========================================= */
+
+.pdf-button {
+    display: block;
+    margin: 25px auto;
+    padding: 14px 35px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.pdf-button:hover {
+    background: #15803d;
+}
+
+.pdf-button:disabled {
+    opacity: .7;
+    cursor: wait;
+}
+
+
+/* =========================================
+   الجوال
+========================================= */
+
+@media (max-width: 800px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .templates {
+        grid-template-columns: 1fr;
+    }
+
+    .cv-wrapper {
+        padding: 5px;
+    }
+
+    #cv {
+        width: 794px;
+        height: 1123px;
+        min-height: 1123px;
+    }
+}
+
+
+/* =========================================
+   نسخة PDF المؤقتة
+   تكون خارج مساحة العرض
+========================================= */
+
+#pdfExportArea {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: 794px;
+    height: 1123px;
+    overflow: visible;
+    background: white;
+    pointer-events: none;
+    z-index: -1;
+}
+
+#pdfExportArea #pdfClone {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+    margin: 0 !important;
+
+    width: 794px !important;
+    min-width: 794px !important;
+    max-width: 794px !important;
+
+    height: 1123px !important;
+    min-height: 1123px !important;
+
+    padding: 55px !important;
+
+    box-sizing: border-box !important;
+    overflow: visible !important;
+
+    direction: rtl !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================
+   تحسين التصدير
+========================================= */
+
+#pdfExportArea * {
+    box-sizing: border-box;
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================
+     شاشة الترحيب
+========================================= -->
+
+<section id="welcomeScreen">
+
+    <div class="welcome-container">
+
+        <img
+            id="welcomePhoto"
+            class="welcome-photo"
+            src="abdullah.jpg"
+            alt="صورة المهندس عبدالله"
+        >
+
+        <h1>
+            مرحباً بك مع المهندس عبدالله
+        </h1>
+
+        <p>
+            لتكوين سيرتك الذاتية الاحترافية
+        </p>
+
+        <button
+            id="enterButton"
+            class="enter-button"
+            type="button"
+        >
+            الدخول والبدء 🚀
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     التطبيق الرئيسي
+========================================= -->
+
+<div id="mainApp">
+
+<header class="top-header">
+
+    <h1>
+        منشئ السيرة الذاتية
+    </h1>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- =========================================
+     النموذج
+========================================= -->
+
+<div class="form-box">
+
+    <h2>
+        بيانات السيرة الذاتية
+    </h2>
+
+
+    <div class="form-grid">
+
+
+        <div class="form-group">
+
+            <label>
+                الاسم الكامل
+            </label>
+
+            <input
+                id="name"
+                type="text"
+                placeholder="مثال: عبدالله محمد"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                المسمى الوظيفي
+            </label>
+
+            <input
+                id="job"
+                type="text"
+                placeholder="مثال: مهندس مدني"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                البريد الإلكتروني
+            </label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="example@email.com"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                رقم الهاتف
+            </label>
+
+            <input
+                id="phone"
+                type="text"
+                placeholder="+974..."
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                الموقع
+            </label>
+
+            <input
+                id="location"
+                type="text"
+                placeholder="الدوحة، قطر"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                تاريخ الميلاد
+            </label>
+
+            <input
+                id="birth"
+                type="text"
+                placeholder="مثال: 1995/05/20"
+            >
+
+        </div>
+
+
+        <!-- التعليم -->
+
+        <div class="form-group full">
+
+            <label>
+                التعليم والمؤهلات العلمية
+                <span style="color:#64748b;">
+                    (اختياري)
+                </span>
+            </label>
+
+            <textarea
+                id="education"
+                placeholder="مثال:
+بكالوريوس هندسة مدنية - جامعة قطر - 2024
+دبلوم إدارة المشاريع - 2022"
+            ></textarea>
+
+            <div class="hint">
+                يمكنك كتابة أكثر من مؤهل، كل مؤهل في سطر مستقل.
+            </div>
+
+        </div>
+
+
+        <!-- المهارات -->
+
+        <div class="form-group full">
+
+            <label>
+                المهارات
+                <span style="color:#64748b;">
+                    (اختياري)
+                </span>
+            </label>
+
+            <textarea
+                id="skills"
+                placeholder="مثال:
+إدارة المشاريع
+AutoCAD
+Microsoft Office
+العمل الجماعي
+حل المشكلات"
+            ></textarea>
+
+            <div class="hint">
+                اكتب كل مهارة في سطر مستقل.
+                إذا لم تكن لديك مهارات تريد إضافتها، اترك الخانة فارغة.
+            </div>
+
+        </div>
+
+
+        <!-- النبذة -->
+
+        <div class="form-group full">
+
+            <label>
+                نبذة شخصية
+                <span style="color:#64748b;">
+                    (اختياري)
+                </span>
+            </label>
+
+            <textarea
+                id="summary"
+                placeholder="اكتب نبذة مختصرة عن خبراتك وأهدافك المهنية"
+            ></textarea>
+
+        </div>
+
+
+        <!-- الصورة -->
+
+        <div class="form-group full">
+
+            <label>
+                صورة السيرة الذاتية
+                <span style="color:#64748b;">
+                    (اختياري)
+                </span>
+            </label>
+
+            <input
+                id="photo"
+                type="file"
+                accept="image/*"
+            >
+
+        </div>
+
+
+    </div>
+
+
+    <!-- اختيار القوالب -->
+
+    <h2 style="margin-top:30px;">
+        اختر قالب السيرة الذاتية
+    </h2>
+
+
+    <div class="templates">
+
+
+        <div
+            class="template-card selected"
+            data-template="1"
+        >
+
+            <div class="template-preview">
+
+                <div class="line title-line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+
+            </div>
+
+            <strong>
+                القالب الكلاسيكي
+            </strong>
+
+        </div>
+
+
+        <div
+            class="template-card"
+            data-template="2"
+        >
+
+            <div class="template-preview">
+
+                <div class="line title-line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+
+            </div>
+
+            <strong>
+                القالب العصري
+            </strong>
+
+        </div>
+
+
+        <div
+            class="template-card"
+            data-template="3"
+        >
+
+            <div class="template-preview">
+
+                <div class="line title-line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+
+            </div>
+
+            <strong>
+                القالب الاحترافي
+            </strong>
+
+        </div>
+
+
+    </div>
+
+
+    <button
+        id="createButton"
+        class="create-button"
+        type="button"
+    >
+        إنشاء السيرة الذاتية
+    </button>
+
+
+</div>
+
+
+<!-- =========================================
+     معاينة السيرة
+========================================= -->
+
+<section id="previewSection">
+
+
+    <h2 class="preview-title">
+        معاينة السيرة الذاتية
+    </h2>
+
+
+    <div class="cv-wrapper">
+
+
+        <div
+            id="cv"
+            class="template-1"
+        >
+
+
+            <!-- الرأس -->
+
+            <div class="cv-header">
+
+
+                <img
+                    id="cvPhoto"
+                    alt="الصورة الشخصية"
+                >
+
+
+                <div>
+
+                    <h1
+                        id="cvName"
+                        class="cv-name"
+                    >
+                    </h1>
+
+
+                    <div
+                        id="cvJob"
+                        class="cv-job"
+                    >
+                    </div>
+
+
+                    <div class="contact-info">
+
+                        <div id="cvEmail"></div>
+
+                        <div id="cvPhone"></div>
+
+                        <div id="cvLocation"></div>
+
+                        <div id="cvBirth"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- النبذة -->
+
+            <section
+                id="summarySection"
+                class="cv-section"
+            >
+
+                <h3>
+                    نبذة شخصية
+                </h3>
+
+                <p id="cvSummary"></p>
+
+            </section>
+
+
+            <!-- التعليم -->
+
+            <section
+                id="educationSection"
+                class="cv-section"
+            >
+
+                <h3>
+                    التعليم والمؤهلات العلمية
+                </h3>
+
+                <p id="cvEducation"></p>
+
+            </section>
+
+
+            <!-- المهارات -->
+
+            <section
+                id="skillsSection"
+                class="cv-section"
+            >
+
+                <h3>
+                    المهارات
+                </h3>
+
+                <div
+                    id="cvSkills"
+                    class="skills-list"
+                >
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+
+    <button
+        id="pdfButton"
+        class="pdf-button"
+        type="button"
+    >
+        تحميل السيرة الذاتية PDF
+    </button>
+
+
+</section>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+
+/* =========================================
+   شاشة الدخول
+========================================= */
+
+document
+.getElementById("enterButton")
+.addEventListener("click", function() {
+
+    document
+    .getElementById("welcomeScreen")
+    .style.display = "none";
+
+    document
+    .getElementById("mainApp")
+    .style.display = "block";
+
+});
+
+
+/* =========================================
+   القالب الحالي
+========================================= */
+
+let selectedTemplate = 1;
+
+
+/* =========================================
+   اختيار القالب
+========================================= */
+
+document
+.querySelectorAll(".template-card")
+.forEach(function(card) {
+
+    card.addEventListener("click", function() {
+
+        selectedTemplate =
+            Number(this.dataset.template);
+
+
+        document
+        .querySelectorAll(".template-card")
+        .forEach(function(item) {
+
+            item.classList.remove("selected");
+
+        });
+
+
+        this.classList.add("selected");
+
+
+        const cv =
+            document.getElementById("cv");
+
+
+        cv.classList.remove(
+            "template-1",
+            "template-2",
+            "template-3"
+        );
+
+
+        cv.classList.add(
+            "template-" + selectedTemplate
+        );
+
+    });
+
+});
+
+
+/* =========================================
+   إنشاء السيرة
+========================================= */
+
+document
+.getElementById("createButton")
+.addEventListener("click", function() {
+
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const job =
+        document.getElementById("job").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const phone =
+        document.getElementById("phone").value.trim();
+
+    const location =
+        document.getElementById("location").value.trim();
+
+    const birth =
+        document.getElementById("birth").value.trim();
+
+    const education =
+        document.getElementById("education").value.trim();
+
+    const skills =
+        document.getElementById("skills").value.trim();
+
+    const summary =
+        document.getElementById("summary").value.trim();
+
+
+    /* البيانات الأساسية */
+
+    document
+    .getElementById("cvName")
+    .textContent =
+        name || "الاسم الكامل";
+
+
+    document
+    .getElementById("cvJob")
+    .textContent =
+        job || "المسمى الوظيفي";
+
+
+    document
+    .getElementById("cvEmail")
+    .textContent =
+        email
+        ? "البريد: " + email
+        : "";
+
+
+    document
+    .getElementById("cvPhone")
+    .textContent =
+        phone
+        ? "الهاتف: " + phone
+        : "";
+
+
+    document
+    .getElementById("cvLocation")
+    .textContent =
+        location
+        ? "الموقع: " + location
+        : "";
+
+
+    document
+    .getElementById("cvBirth")
+    .textContent =
+        birth
+        ? "تاريخ الميلاد: " + birth
+        : "";
+
+
+    /* النبذة */
+
+    document
+    .getElementById("cvSummary")
+    .textContent =
+        summary;
+
+
+    document
+    .getElementById("summarySection")
+    .style.display =
+        summary
+        ? "block"
+        : "none";
+
+
+    /* التعليم */
+
+    document
+    .getElementById("cvEducation")
+    .textContent =
+        education;
+
+
+    document
+    .getElementById("educationSection")
+    .style.display =
+        education
+        ? "block"
+        : "none";
+
+
+    /* المهارات */
+
+    const skillsContainer =
+        document.getElementById("cvSkills");
+
+
+    skillsContainer.innerHTML = "";
+
+
+    if (skills) {
+
+        const skillsArray =
+            skills
+            .split(/\r?\n/)
+            .map(function(skill) {
+
+                return skill.trim();
+
+            })
+            .filter(function(skill) {
+
+                return skill !== "";
+
+            });
+
+
+        skillsArray.forEach(function(skill) {
+
+            const skillElement =
+                document.createElement("span");
+
+
+            skillElement.className =
+                "skill-item";
+
+
+            skillElement.textContent =
+                skill;
+
+
+            skillsContainer.appendChild(
+                skillElement
+            );
+
+        });
+
+
+        document
+        .getElementById("skillsSection")
+        .style.display =
+            skillsArray.length
+            ? "block"
+            : "none";
+
+
+    } else {
+
+        document
+        .getElementById("skillsSection")
+        .style.display =
+            "none";
+
+    }
+
+
+    /* الحفاظ على القالب */
+
+    const cv =
+        document.getElementById("cv");
+
+
+    cv.classList.remove(
+        "template-1",
+        "template-2",
+        "template-3"
+    );
+
+
+    cv.classList.add(
+        "template-" + selectedTemplate
+    );
+
+
+    /* الصورة */
+
+    const photoInput =
+        document.getElementById("photo");
+
+
+    const cvPhoto =
+        document.getElementById("cvPhoto");
+
+
+    if (
+        photoInput.files &&
+        photoInput.files[0]
+    ) {
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(event) {
+
+                cvPhoto.src =
+                    event.target.result;
+
+                cvPhoto.style.display =
+                    "block";
+
+            };
+
+
+        reader.readAsDataURL(
+            photoInput.files[0]
+        );
+
+
+    } else {
+
+        cvPhoto.style.display =
+            "none";
+
+    }
+
+
+    /* إظهار المعاينة */
+
+    document
+    .getElementById("previewSection")
+    .style.display =
+        "block";
+
+
+    document
+    .getElementById("previewSection")
+    .scrollIntoView({
+        behavior: "smooth"
+    });
+
+});
+
+
+/* =========================================
+   تحميل PDF
+   نسخة مستقلة ثابتة A4
+========================================= */
+
+document
+.getElementById("pdfButton")
+.addEventListener("click", async function() {
+
+    const button = this;
+
+    let exportArea = null;
+
+    try {
+
+        button.disabled = true;
+
+        button.textContent =
+            "جاري تجهيز ملف PDF...";
+
+
+        /* =====================================
+           التحقق من المكتبات
+        ===================================== */
+
+        if (typeof html2canvas !== "function") {
+
+            throw new Error(
+                "html2canvas غير محمل"
+            );
+
+        }
+
+
+        if (
+            !window.jspdf ||
+            typeof window.jspdf.jsPDF !== "function"
+        ) {
+
+            throw new Error(
+                "jsPDF غير محمل"
+            );
+
+        }
+
+
+        /* =====================================
+           السيرة الأصلية
+        ===================================== */
+
+        const original =
+            document.getElementById("cv");
+
+
+        if (!original) {
+
+            throw new Error(
+                "لم يتم العثور على السيرة"
+            );
+
+        }
+
+
+        /* =====================================
+           إنشاء منطقة PDF مستقلة
+        ===================================== */
+
+        exportArea =
+            document.createElement("div");
+
+
+        exportArea.id =
+            "pdfExportArea";
+
+
+        document.body.appendChild(
+            exportArea
+        );
+
+
+        /* =====================================
+           نسخ السيرة
+        ===================================== */
+
+        const clone =
+            original.cloneNode(true);
+
+
+        clone.id =
+            "pdfClone";
+
+
+        exportArea.appendChild(
+            clone
+        );
+
+
+        /* =====================================
+           تثبيت المقاسات
+        ===================================== */
+
+        const pdfWidth =
+            794;
+
+        const pdfHeight =
+            1123;
+
+
+        clone.style.width =
+            pdfWidth + "px";
+
+        clone.style.height =
+            pdfHeight + "px";
+
+        clone.style.minWidth =
+            pdfWidth + "px";
+
+        clone.style.maxWidth =
+            pdfWidth + "px";
+
+        clone.style.minHeight =
+            pdfHeight + "px";
+
+        clone.style.maxHeight =
+            pdfHeight + "px";
+
+
+        clone.style.margin =
+            "0";
+
+        clone.style.padding =
+            "55px";
+
+
+        clone.style.position =
+            "relative";
+
+        clone.style.left =
+            "0";
+
+        clone.style.top =
+            "0";
+
+        clone.style.transform =
+            "none";
+
+        clone.style.overflow =
+            "visible";
+
+        clone.style.direction =
+            "rtl";
+
+        clone.style.boxSizing =
+            "border-box";
+
+        clone.style.display =
+            "block";
+
+        clone.style.visibility =
+            "visible";
+
+        clone.style.opacity =
+            "1";
+
+
+        /* =====================================
+           انتظار تحميل الصورة والخطوط
+        ===================================== */
+
+        if (document.fonts) {
+
+            await document.fonts.ready;
+
+        }
+
+
+        const images =
+            clone.querySelectorAll("img");
+
+
+        await Promise.all(
+
+            Array.from(images).map(function(img) {
+
+                if (img.complete) {
+
+                    return Promise.resolve();
+
+                }
+
+                return new Promise(function(resolve) {
+
+                    img.onload =
+                        resolve;
+
+                    img.onerror =
+                        resolve;
+
+                });
+
+            })
+
+        );
+
+
+        await new Promise(function(resolve) {
+
+            requestAnimationFrame(function() {
+
+                requestAnimationFrame(function() {
+
+                    setTimeout(
+                        resolve,
+                        200
+                    );
+
+                });
+
+            });
+
+        });
+
+
+        /* =====================================
+           تحويل السيرة إلى Canvas
+        ===================================== */
+
+        const canvas =
+            await html2canvas(
+                clone,
+                {
+
+                    scale: 2,
+
+                    width: pdfWidth,
+
+                    height: pdfHeight,
+
+                    backgroundColor:
+                        "#ffffff",
+
+                    useCORS:
+                        true,
+
+                    allowTaint:
+                        true,
+
+                    logging:
+                        false,
+
+                    scrollX:
+                        0,
+
+                    scrollY:
+                        0,
+
+                    x:
+                        0,
+
+                    y:
+                        0,
+
+                    windowWidth:
+                        pdfWidth,
+
+                    windowHeight:
+                        pdfHeight,
+
+                    foreignObjectRendering:
+                        false
+
+                }
+            );
+
+
+        /* =====================================
+           حذف النسخة المؤقتة
+        ===================================== */
+
+        exportArea.remove();
+
+        exportArea =
+            null;
+
+
+        /* =====================================
+           إنشاء PDF A4
+        ===================================== */
+
+        const jsPDF =
+            window.jspdf.jsPDF;
+
+
+        const pdf =
+            new jsPDF({
+
+                orientation:
+                    "portrait",
+
+                unit:
+                    "mm",
+
+                format:
+                    "a4",
+
+                compress:
+                    true
+
+            });
+
+
+        const pageWidth =
+            pdf.internal.pageSize.getWidth();
+
+
+        const pageHeight =
+            pdf.internal.pageSize.getHeight();
+
+
+        /* =====================================
+           الصورة تملأ A4 بالكامل
+        ===================================== */
+
+        pdf.addImage(
+
+            canvas.toDataURL(
+                "image/jpeg",
+                0.96
+            ),
+
+            "JPEG",
+
+            0,
+
+            0,
+
+            pageWidth,
+
+            pageHeight,
+
+            undefined,
+
+            "FAST"
+
+        );
+
+
+        /* =====================================
+           اسم الملف
+        ===================================== */
+
+        const safeName =
+            document
+            .getElementById("name")
+            .value
+            .trim()
+            .replace(
+                /[\\/:*?"<>|]/g,
+                ""
+            )
+            ||
+            "CV";
+
+
+        pdf.save(
+            "CV-" + safeName + ".pdf"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "PDF Error:",
+            error
+        );
+
+
+        if (exportArea) {
+
+            exportArea.remove();
+
+        }
+
+
+        alert(
+            "حدث خطأ أثناء إنشاء ملف PDF. حاول مرة أخرى."
+        );
+
+
+    } finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "تحميل السيرة الذاتية PDF";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
+```
